@@ -1,0 +1,34 @@
+---
+- hosts: airflow_host
+  vars_files:
+    - "{{ env }}/group_vars/postgres.yml"
+    - "{{ env }}/group_vars/sudoers.yml"
+    - "{{ env }}/group_vars/users_groups.yml"
+  tasks:
+    - name: "Manage users and groups"
+      become: "true"
+      include_role:
+        name: "role_users"
+      vars:
+        users: "{{ users_add }}"
+
+    - name: "Manage sudoers"
+      become: "true"
+      include_role:
+        name: "role_sudoers"
+      vars:
+        sudoers: "{{ sudoers_add }}"
+
+    - name: "Manage PostgreSQL"
+      become: "true"
+      include_role:
+        name: "role_postgresql"
+      vars:
+        postgresql_cluster_reset: "true"
+        state: "postgresql"
+
+    - name: "Manage airflow"
+      include_role:
+        name: "role_airflow"
+      vars:
+        state: "role_airflow_whole_install"

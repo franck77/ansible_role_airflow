@@ -1,0 +1,28 @@
+---
+
+- name: "Create log dir for dags test"
+  become_user: "{{ role_airflow_user.name }}"
+  become: "yes"
+  file:
+    path: "{{ role_airflow_logs_test_scripts }}"
+    state: "directory"
+    owner: "{{ role_airflow_user.name }}"
+    group: "{{ role_airflow_group_name }}"
+    mode: "775"
+
+- name: "Copy airflow script in airflow server"
+  become_user: "{{ role_airflow_user.name }}"
+  become: "yes"
+  template:
+    src: 'dags/{{ item.filename }}'
+    dest: "{{ role_airflow_dags_dir }}/"
+    owner: "{{ role_airflow_user.name }}"
+    group: "{{ role_airflow_group_name }}"
+    mode: "775"
+  with_items: "{{ list_script }}"
+
+- name: "Test Airflow scripts deployed in airflow server"
+  become_user: "{{ role_airflow_user.name }}"
+  become: "yes"
+  shell: "python3 {{ role_airflow_dags_dir }}/{{ item.filename }} >> {{ role_airflow_logs_test_scripts }}/{{ item.filename }}.log"
+  with_items: "{{ list_script }}"

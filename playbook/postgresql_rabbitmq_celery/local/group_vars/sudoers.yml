@@ -1,0 +1,17 @@
+---
+
+sudoers_add:
+ - name: "AIRFLOW"
+   cmd: "/usr/bin/systemctl * airflow-*.service"
+   users:
+    - "{{ users_add[0].username }}"
+ - name: "POSTGRESQL"
+   cmd: "/usr/bin/systemctl * postgresql*.service"
+   users:
+    - "{{ users_add[1].username }}"
+
+sudoers_del:
+ - name: "{{ sudoers_add[0].name }}"
+   remove: "true"
+ - name: "{{ sudoers_add[1].name }}"
+   remove: "true"

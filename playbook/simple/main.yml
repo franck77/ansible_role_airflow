@@ -1,0 +1,6 @@
+---
+
+- hosts: airflow_host
+  roles:
+    - role: role_ariflow
+      become: true

@@ -1,0 +1,77 @@
+---
+
+# By default state is null
+state: ""
+
+### USERS & GROUPS
+role_airflow_group_name: "airflow"
+role_airflow_user:
+  name: "airflow"
+  shell: "/bin/bash"
+  group: "{{ role_airflow_group_name }}"
+  comment: "User dedicated to airflow"
+  home: "/home/airflow"
+###
+
+### Repos 
+role_airflow_repos:
+  - name: "bintray-rabbitmq-rpm"
+    description: "External repos Bintray to download rabbitmq-server"
+    file: "external_repos_bintray"
+    baseurl: "https://dl.bintray.com/rabbitmq/rpm/rabbitmq-server/v3.7.x/el/7/"
+    gpgcheck: "no"
+  - name: "erlang-solutions"
+    description: "Packages Erlang"
+    file: "external_repos_erlang"
+    baseurl: "https://packages.erlang-solutions.com/rpm/centos/7/$basearch"
+    gpgcheck: "no"
+  - name: "wxGTK-packages"
+    baseurl: "http://download-ib01.fedoraproject.org/pub/epel/7/x86_64/"
+    description: "Packages wxGTK"
+    file: "external_repos_wxGTK"
+    gpgcheck: "no"
+###
+
+### Setting airflow
+
+# Python 
+role_airflow_pip_version: "pip3"
+#
+
+# Path 
+role_airflow_systemd_dir: "/usr/lib/systemd/system"
+role_airflow_root_dir: "{{ role_airflow_user.home }}"
+role_airflow_database_path: "{{ role_airflow_root_dir }}/airflow.db"
+role_airflow_bin_airflow: "{{ role_airflow_user.home }}/.local/bin/airflow"
+#
+
+# Backend 
+role_airflow_executor_type: "SequentialExecutor"
+role_airflow_database_type: "sqlite"
+role_airflow_broker:
+  type: "sqla+mysql"
+  user: "airflow"
+  password: "airflow"
+  host: "localhost"
+  port: "3306"
+role_airflow_broker_url: "{{ role_airflow_broker.type }}://{{ role_airflow_broker.user }}:{{ role_airflow_broker.password }}@{{ role_airflow_broker.host }}:{{ role_airflow_broker.port }}/airflow"
+role_airflow_backend:
+  type: "db+mysql"
+  user: "airflow"
+  password: "airflow"
+  host: "localhost"
+  port: "3306"  
+role_airflow_result_backend: "{{ role_airflow_backend.type }}://{{ role_airflow_backend.user }}:{{ role_airflow_backend.password }}@{{ role_airflow_backend.host }}:{{ role_airflow_backend.port }}/airflow"
+#
+
+# Security 
+role_airflow_ssl:
+  active: "False"
+  key: ""
+  cert: ""
+  cacert: ""
+role_airflow_load_examples: "True"
+role_airflow_log_fetch_timeout_sec: "5"
+#
+
+# defaults file for role_airflow

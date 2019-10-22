@@ -1,0 +1,98 @@
+---
+- name: "yum-clean-metadata"
+  become: "true"
+  command: "yum clean all"
+  args:
+    warn: no
+
+- name: "Reload systemctl deamon"
+  become: "true"
+  systemd:
+    daemon_reload: "yes"
+
+### Rabbitmq 
+- name: "Start Rabbitmq"
+  become: "true"
+  systemd:
+    state: "started"
+    name: "rabbitmq-server"
+
+- name: "Stop Rabbitmq"
+  become: "true"
+  systemd:
+    state: "stopped"
+    name: "rabbitmq-server"
+
+- name: "Restart Rabbitmq"
+  become: "true"
+  systemd:
+    state: "restarted"
+    name: "rabbitmq-server"
+###
+
+### Airflow 
+
+# WebServer
+- name: "Start airflow-webserver"
+  become: "true"
+  systemd:
+    state: "started"
+    name: "airflow-webserver"
+    user: "yes"
+
+- name: "Stop airflow-webserver"
+  become: "true"
+  systemd:
+    state: "stopped"
+    name: "airflow-webserver"
+
+- name: "Restart airflow-webserver"
+  become: "true"
+  systemd:
+    state: "restarted"
+    name: "airflow-webserver"
+  when: state not in ['role_airflow_whole_install']
+#
+# Scheduler
+- name: "Start airflow-scheduler"
+  become: "true"
+  systemd:
+    state: "started"
+    name: "airflow-scheduler"
+
+- name: "Stop airflow-scheduler"
+  become: "true"
+  systemd:
+    state: "stopped"
+    name: "airflow-scheduler"
+
+- name: "Restart airflow-scheduler"
+  become: "true"
+  systemd:
+    state: "restarted"
+    name: "airflow-scheduler"
+  when: state not in ['role_airflow_whole_install']
+#
+# Worker
+- name: "Start airflow-worker"
+  become: "true"
+  systemd:
+    state: "started"
+    name: "airflow-worker"
+
+- name: "Stop airflow-worker"
+  become: "true"
+  systemd:
+    state: "stopped"
+    name: "airflow-worker"
+
+- name: "Restart airflow-worker"
+  become: "true"
+  systemd:
+    state: "restarted"
+    name: "airflow-worker"
+  when: state not in ['role_airflow_whole_install']
+#
+
+
+# handlers file for role_airflow

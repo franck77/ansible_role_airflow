@@ -1,0 +1,11 @@
+---
+- hosts: airflow_host
+  vars_files:
+    - "{{ env }}/group_vars/users_groups.yml"
+  tasks:
+
+    - name: "Deploy Dags airflow"
+      include_role:
+        name: "role_airflow"
+      vars:
+        state: "role_airflow_deploy"

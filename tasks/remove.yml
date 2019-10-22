@@ -1,0 +1,63 @@
+---
+
+- name: "Remove user and virtual host for rabbitmq"
+  become: "true"
+  rabbitmq_user:
+    user: "{{ role_airflow_broker.user }}"
+    vhost: "{{ role_airflow_broker.vhost }}"
+    state: "absent"
+    force: "yes"
+  when: role_airflow_broker.type == 'pyamqp' or role_airflow_broker.type == 'amqp'
+
+- name: "Remove virtual host for rabbitmq"
+  become: "true"
+  rabbitmq_vhost:
+    name: "{{ role_airflow_broker.vhost }}"
+    state: "absent"
+  when: role_airflow_broker.type == 'pyamqp' or role_airflow_broker.type == 'amqp'
+
+- name: "Remove systemd for airflow webserver"
+  become: "true"
+  file:
+    path: "{{ role_airflow_systemd_dir }}/airflow-webserver.service"
+    state: "absent"
+
+- name: "Remove systemd for airflow scheduler"
+  become: "true"
+  file:
+    path: "{{ role_airflow_systemd_dir }}/airflow-scheduler.service"
+    state: "absent"
+ 
+- name: "Remove systemd for airflow worker"
+  become: "true"
+  file:
+    path: "{{ role_airflow_systemd_dir }}/airflow-worker.service"
+    state: "absent"
+
+- name: "Remove repository to install Airflow - Redhat ONLY"
+  become: "true"
+  yum_repository:
+    name: "{{ item.name }}"
+    file: "{{ item.file }}"
+    state: absent
+  with_items: "{{ role_airflow_repos }}"
+  notify: "yum-clean-metadata"
+  when: ansible_os_family == "RedHat"
+
+- name: "Remove user dedicated to airflow"
+  become: "true"
+  user:
+    name: "{{ role_airflow_user.name }}"
+    state: absent
+
+- name: "Remove a group dedicated to airflow"
+  become: "true"
+  group:
+    name: "{{ role_airflow_group_name }}"
+    state: "absent"
+
+- name: "Remove airflow home directory"
+  become: "true"
+  file:
+    state: "absent"
+    path: "{{ role_airflow_user.home }}"

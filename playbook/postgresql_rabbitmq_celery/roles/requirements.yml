@@ -1,0 +1,17 @@
+---
+
+- src: https://keyrus-gitlab.ml/franck.vieira/role_users
+  version: master
+  scm: git
+  name: role_users
+
+- src: https://keyrus-gitlab.ml/franck.vieira/role_sudoers
+  version: master
+  scm: git
+  name: role_sudoers
+
+- src: https://keyrus-gitlab.ml/franck.vieira/role_postgresql.git
+  version: master
+  scm: git
+  name: role_postgresql
+

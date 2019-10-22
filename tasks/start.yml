@@ -1,0 +1,19 @@
+---
+
+- name: "Start airflow-webserver"
+  become: "true"
+  systemd:
+    state: "started"
+    name: "airflow-webserver"
+
+- name: "Start airflow-scheduler"
+  become: "true"
+  systemd:
+    state: "started"
+    name: "airflow-scheduler"
+
+- name: "Start airflow-worker"
+  become: "true"
+  systemd:
+    state: "started"
+    name: "airflow-worker"

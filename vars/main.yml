@@ -1,0 +1,66 @@
+---
+
+### Packages requirements
+
+# DEBIAN
+role_airflow_packages_requirements_debian:
+  - python3
+  - python3-dev
+  - python3-setuptools
+  - python3-pip
+  - rabbitmq-server
+  - libpq-dev
+  - python3-psycopg2
+  - gcc
+#
+
+# REDHAT / CENTOS
+role_airflow_packages_requirements_redhat:
+  - python3
+  - python3-devel
+  - python3-setuptools
+  - python3-pip
+  - rabbitmq-server
+  - python-psycopg2
+  - gcc
+#
+
+# Packages Python
+role_airflow_python_packages:
+  - flask
+  - psycopg2
+  - apache-airflow
+  - boto3
+  - celery
+  - pyamqp
+#
+
+###
+
+### Airflow configuration
+
+# path 
+role_airflow_cfg_file: "{{ role_airflow_root_dir }}/airflow.cfg"
+role_airflow_dags_dir: "{{ role_airflow_root_dir }}/dags"
+role_airflow_plugins_dir: "{{ role_airflow_root_dir }}/plugins"
+role_airflow_logs_dir: "{{ role_airflow_root_dir }}/logs"
+role_airflow_run_dir: "{{ role_airflow_root_dir }}/run"
+#
+
+# logs 
+role_airflow_logs_webserver_dir: "{{ role_airflow_logs_dir }}/webserver"
+role_airflow_logs_webserver_error_file: "{{ role_airflow_logs_webserver_dir }}/airflow-webserver.err"
+role_airflow_logs_webserver_access_file: "{{ role_airflow_logs_webserver_dir }}/airflow-webserver.log"
+role_airflow_logs_worker_dir: "{{ role_airflow_logs_dir }}/worker"
+role_airflow_logs_worker_log: "{{ role_airflow_logs_worker_dir }}/airflow-worker.log"
+role_airflow_logs_worker_log_stdout: "{{ role_airflow_logs_worker_dir }}/airflow-worker.out"
+role_airflow_logs_worker_log_stderr: "{{ role_airflow_logs_worker_dir }}/airflow-worker.err"
+role_airflow_logs_scheduler_dir: "{{ role_airflow_logs_dir }}/scheduler"
+role_airflow_logs_scheduler_log: "{{ role_airflow_logs_scheduler_dir }}/airflow-scheduler.log"
+role_airflow_logs_scheduler_log_stdout: "{{ role_airflow_logs_scheduler_dir }}/airflow-scheduler.out"
+role_airflow_logs_scheduler_log_stderr: "{{ role_airflow_logs_scheduler_dir }}/airflow-scheduler.err"
+role_airflow_logs_test_scripts: "{{ role_airflow_logs_dir }}/test_scripts"
+#
+
+###
+# vars file for role_airflow

@@ -1,0 +1,26 @@
+---
+
+- name: "Stop airflow-worker"
+  become: "true"
+  systemd:
+    state: "stopped"
+    name: "airflow-worker"
+  register: check_airflow_worker_systemd
+  failed_when: "check_airflow_worker_systemd|failed and ('find' not in check_airflow_worker_systemd.msg and 'found' not in check_airflow_worker_systemd.msg)"
+
+
+- name: "Stop airflow-scheduler"
+  become: "true"
+  systemd:
+    state: "stopped"
+    name: "airflow-scheduler"
+  register: check_airflow_scheduler_systemd
+  failed_when: "check_airflow_scheduler_systemd|failed and ('find' not in check_airflow_scheduler_systemd.msg and 'found' not in check_airflow_scheduler_systemd.msg)"
+
+- name: "Stop airflow-webserver"
+  become: "true"
+  systemd:
+    state: "stopped"
+    name: "airflow-webserver"
+  register: check_airflow_webserver_systemd
+  failed_when: "check_airflow_webserver_systemd|failed and ('find' not in check_airflow_webserver_systemd.msg and 'found' not in check_airflow_webserver_systemd.msg)"

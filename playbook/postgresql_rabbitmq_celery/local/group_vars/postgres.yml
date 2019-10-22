@@ -1,0 +1,46 @@
+---
+
+# Basic settings
+postgresql_version: 11
+postgresql_encoding: "UTF-8"
+postgresql_locale: "en_US.UTF-8"
+postgresql_ctype: "en_US.UTF-8"
+
+postgresql_admin_user: "users_add[1].username"
+postgresql_default_auth_method: "peer"
+
+postgresql_service_enabled: false # should the service be enabled, default is true
+
+postgresql_cluster_name: "main"
+postgresql_cluster_reset: false
+
+# List of databases to be created (optional)
+# Note: for more flexibility with extensions use the postgresql_database_extensions setting.
+postgresql_databases:
+  - name: "{{ postgres_db_name }}"
+    owner: "{{ postgres_db_owner }}"      # optional; specify the owner of the database
+    hstore: yes         # flag to install the hstore extension on this database (yes/no)
+    uuid_ossp: yes      # flag to install the uuid-ossp extension on this database (yes/no)
+    citext: yes         # flag to install the citext extension on this database (yes/no)
+    encoding: "UTF-8"   # override global {{ postgresql_encoding }} variable per database
+    lc_collate: "en_GB.UTF-8"   # override global {{ postgresql_locale }} variable per database
+    lc_ctype: "en_GB.UTF-8"     # override global {{ postgresql_ctype }} variable per database
+
+
+# List of users to be created (optional)
+postgresql_users:
+  - name: "{{ postgres_user_name }}"
+    pass: "{{ postgres_user_password }}"
+    encrypted: yes  # if password should be encrypted, postgresql >= 10 does only accepts encrypted passwords
+
+# List of user privileges to be applied (optional)
+postgresql_user_privileges:
+  - name: "{{ postgres_user_name }}" # user name
+    db: "{{ postgres_db_name }}" #database
+    priv: "ALL"                 # privilege string format: example: INSERT,UPDATE/table:SELECT/anothertable:ALL
+    role_attr_flags: "CREATEDB" # role attribute flags
+
+
+postgresql_data_directory: "/data/{{ postgresql_varlib_directory_name }}/{{ postgresql_version }}/{{ postgresql_cluster_name }}"
+postgresql_log_directory: "/var/log/postgres"
+

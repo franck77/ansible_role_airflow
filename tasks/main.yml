@@ -1,0 +1,35 @@
+---
+
+- name: "Check that input variables are well transmitted to launch the role airflow"
+  assert:
+    that: "{{ item }} is defined"
+  with_items:
+    - state
+
+- name: "Install airflow"
+  include_tasks: "install.yml"
+  when: state in ['role_airflow_install','role_airflow_whole_install']
+
+- name: "Config airflow"
+  include_tasks: "config.yml"
+  when: state in ['role_airflow_config','role_airflow_whole_install']
+
+- name: "Start airflow"
+  include_tasks: "start.yml"
+  when: state in ['role_airflow_whole_install','role_airflow_start']
+
+- name: "Stop airflow"
+  include_tasks: "stop.yml"
+  when: state in ['role_airflow_remove','role_airflow_whole_remove','role_airflow_delete','role_airflow_stop']
+
+- name: "Remove airflow"
+  include_tasks: "remove.yml"
+  when: state in ['role_airflow_remove','role_airflow_whole_remove','role_airflow_delete']
+
+- name: "Restart airflow"
+  include_tasks: "restart.yml"
+  when: state in ['role_airflow_restart']
+
+- name: "Deploy dags"
+  include_tasks: "deploy.yml"
+  when: state in ['role_airflow_deploy']

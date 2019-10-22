@@ -1,0 +1,142 @@
+
+---
+
+- name: "Set sudoers for airflow"
+  become: "true"
+  include_role:
+    name: "role_sudoers"
+  vars:
+    sudoers:
+      - name: "AIRFLOW"
+        cmd: "/usr/bin/systemctl * airflow-*.service"
+        users:
+          - "{{ role_airflow_user.name }}"
+
+- name: "Set virtual host for rabbitmq"
+  become: "true"
+  rabbitmq_vhost:
+    name: "{{ role_airflow_broker.vhost }}"
+    state: "present"
+  when: role_airflow_broker.type == 'pyamqp' or role_airflow_broker.type == 'amqp'
+
+- name: "Set user for rabbitmq"
+  become: "true"
+  rabbitmq_user:
+    user: "{{ role_airflow_broker.user }}"
+    password: "{{ role_airflow_broker.password }}"
+    vhost: "{{ role_airflow_broker.vhost }}"
+    configure_priv: "{{ role_airflow_broker.config | default('.*') }}"
+    read_priv: "{{ role_airflow_broker.read | default('.*') }}"
+    write_priv: "{{ role_airflow_broker.write | default('.*') }}"
+    state: present
+  when: role_airflow_broker.type == 'pyamqp' or role_airflow_broker.type == 'amqp'
+
+- name: "Create log directory for webserver"
+  become_user: "{{ role_airflow_user.name }}"
+  become: "yes"
+  file:
+    path: "{{ role_airflow_logs_webserver_dir }}"
+    state: "directory"
+    owner: "{{ role_airflow_user.name }}"
+    group: "{{ role_airflow_group_name }}"
+    mode: "755"
+
+- name: "Create log directory for scheduler"
+  become_user: "{{ role_airflow_user.name }}"
+  become: "yes"
+  file:
+    path: "{{ role_airflow_logs_scheduler_dir }}"
+    state: "directory"
+    owner: "{{ role_airflow_user.name }}"
+    group: "{{ role_airflow_group_name }}"
+    mode: "755"
+
+- name: "Create log directory for worker"
+  become_user: "{{ role_airflow_user.name }}"
+  become: "yes"
+  file:
+    path: "{{ role_airflow_logs_worker_dir }}"
+    state: "directory"
+    owner: "{{ role_airflow_user.name }}"
+    group: "{{ role_airflow_group_name }}"
+    mode: "755"
+
+- name: "Create dag directory"
+  become_user: "{{ role_airflow_user.name }}"
+  become: "yes"  
+  file:
+    path: "{{ role_airflow_dags_dir }}"
+    state: "directory"
+    owner: "{{ role_airflow_user.name }}"
+    group: "{{ role_airflow_group_name }}"
+    mode: "775"
+
+- name: "Create run directory for airflow webserver PID"
+  become_user: "{{ role_airflow_user.name }}"
+  become: "yes"  
+  file:
+    path: "{{ role_airflow_run_dir }}"
+    state: "directory"
+    owner: "{{ role_airflow_user.name }}"
+    group: "{{ role_airflow_group_name }}"
+    mode: "755"
+
+- name: "Set systemd for airflow webserver"
+  become: "true"
+  template:
+    src: "template/airflow-webserver.service.j2"
+    dest: "{{ role_airflow_systemd_dir }}/airflow-webserver.service"
+    owner: "root"
+    group: "root"
+    mode: "664"
+  notify:
+      - "Reload systemctl deamon"
+
+- name: "Set systemd for airflow scheduler"
+  become: "true"
+  template:
+    src: "template/airflow-scheduler.service.j2"
+    dest: "{{ role_airflow_systemd_dir }}/airflow-scheduler.service"
+    owner: "root"
+    group: "root"
+    mode: "664"
+  notify:
+      - "Reload systemctl deamon"
+
+- name: "Set systemd for airflow worker"
+  become: "true"
+  template:
+    src: "template/airflow-worker.service.j2"
+    dest: "{{ role_airflow_systemd_dir }}/airflow-worker.service"
+    owner: "root"
+    group: "root"
+    mode: "664"
+  notify:
+      - "Reload systemctl deamon"
+
+- name: "Set bash_profile for airflow user"
+  become_user: "{{ role_airflow_user.name }}"
+  become: "yes"
+  template:
+    src: "template/bash_profile.j2"
+    dest: "{{ role_airflow_user.home }}/.bash_profile"
+    owner: "{{ role_airflow_user.name }}"
+    group: "{{ role_airflow_group_name }}"
+    mode: "664"
+
+- name: "Configure airflow"
+  become_user: "{{ role_airflow_user.name }}"
+  become: "yes"
+  template:
+    src: "template/airflow.cfg.j2"
+    dest: "{{ role_airflow_cfg_file }}"
+    owner: "{{ role_airflow_user.name }}"
+    group: "{{ role_airflow_group_name }}"
+    mode: "664"
+    block_start_string: "¤¤"
+    block_end_string: "¤¤"
+  notify:
+    - "Restart airflow-webserver"
+    - "Restart airflow-scheduler"
+    - "Restart airflow-worker"
+    - "Start Rabbitmq"

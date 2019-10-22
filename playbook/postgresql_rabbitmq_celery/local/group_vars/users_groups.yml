@@ -1,0 +1,14 @@
+---
+
+users_add:
+ - name: "User dedicated to airflow"
+   username: "airflow"
+   home: "/applis/airflow"
+ - name: "PostgreSQL Server"
+   username: "postgres"
+   home: "/var/lib/pgsql"
+
+users_del:
+ - username: "{{ users_add[0].username }}"
+   remove: "yes"
+   force: "yes"

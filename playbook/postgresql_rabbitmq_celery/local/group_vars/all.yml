@@ -1,0 +1,30 @@
+---
+
+### postgreSQL
+postgres_db_name: "airflow_db"
+postgres_db_owner: "airflow"
+postgres_user_name: "airflow"
+postgres_user_password: "toto"
+
+### AIRFLOW
+role_airflow_group_name: "{{ users_add[0].username }}"
+role_airflow_user:
+  name: "{{ users_add[0].username }}"
+  shell: "/bin/bash"
+  group: "{{ users_add[0].username }}"
+  comment: "{{ users_add[0].name }}"
+  home: "{{ users_add[0].home }}"
+
+role_airflow_executor_type: "CeleryExecutor"
+role_airflow_database_type: "postgresql+psycopg2"
+role_airflow_database_path: "{{ postgres_db_name }}"
+role_airflow_broker:
+  type: "pyamqp"
+  user: "airflow_mq"
+  password: "tata"
+  host: "localhost"
+  port: "5672"
+  vhost: ""
+role_airflow_broker_url: "{{ role_airflow_broker.type }}://{{ role_airflow_broker.user }}:{{ role_airflow_broker.password }}@{{ role_airflow_broker.host }}:{{ role_airflow_broker.port }}/{{ role_airflow_broker.vhost }}"
+role_airflow_result_backend: "db+postgresql://{{ postgres_user_name }}:{{ postgres_user_password }}@localhost:5432/{{ postgres_db_name }}"
+

@@ -1,0 +1,67 @@
+---
+
+- name: "Create a group dedicated to airflow"
+  become: "true"
+  group:
+    name: "{{ role_airflow_group_name }}"
+    state: "present"
+
+- name: "Create a user dedicated to airflow"
+  become: "true"
+  user:
+    name: "{{ role_airflow_user.name }}"
+    shell: "{{ role_airflow_user.shell }}"
+    group: "{{ role_airflow_user.group }}"
+    comment: "{{ role_airflow_user.comment }}"
+    home: "{{ role_airflow_user.home }}"
+
+- name: "Add repository to install Airflow - Redhat ONLY"
+  become: "true"
+  yum_repository:
+    name: "{{ item.name }}"
+    description: "{{ item.description }}"
+    file: "{{ item.file }}"
+    baseurl: "{{ item.baseurl }}"
+    gpgcheck: "{{ item.gpgcheck }}"
+  with_items: "{{ role_airflow_repos }}"
+  notify: "yum-clean-metadata"
+  when: ansible_os_family == "RedHat"
+
+- name: "Install packages requirements for airflow - Redhat ONLY"
+  become: "true"
+  yum:
+    name: "{{ item }}"
+    state: "latest"
+  with_items: "{{ role_airflow_packages_requirements_redhat }}"
+  when: ansible_os_family == "RedHat"
+  
+- name: "Install packages requirements for airflow - Debian ONLY"
+  become: "true"
+  apt : 
+    name: "{{ item }}"
+  with_items: "{{ role_airflow_packages_requirements_debian }}"
+  when: ansible_os_family == "Debian"
+
+- name: "Install python packages for {{ role_airflow_user.name }} user"
+  become_user: "{{ role_airflow_user.name }}"
+  become: "yes"
+  pip:
+    name: "{{ item }}"
+    executable: "{{ role_airflow_pip_version }}"
+    extra_args: --user
+  with_items: "{{ role_airflow_python_packages }}"
+
+- name: "Init db airflow"
+  become_user: "{{ role_airflow_user.name }}"
+  become: "yes"
+  shell: "{{ role_airflow_bin_airflow }} initdb"
+  environment : 
+    AIRFLOW_HOME : "{{ role_airflow_root_dir }}"
+
+- name: "Remove default sqlite db if the databse type is not sqlite"
+  become_user: "{{ role_airflow_user.name }}"
+  become: "yes"
+  file:
+    path: "{{ role_airflow_root_dir }}/airflow.db"
+    state: "absent"
+  when: role_airflow_database_type != 'sqlite'

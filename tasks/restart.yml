@@ -1,0 +1,21 @@
+---
+
+- name: "Restart airflow-webserver"
+  become: "true"
+  systemd:
+    state: "restarted"
+    name: "airflow-webserver"
+
+- name: "Restart airflow-scheduler"
+  become: "true"
+  systemd:
+    state: "restarted"
+    name: "airflow-scheduler"
+  when: state not in ['role_airflow_whole_install']
+
+- name: "Restart airflow-worker"
+  become: "true"
+  systemd:
+    state: "restarted"
+    name: "airflow-worker"
+  when: state not in ['role_airflow_whole_install']

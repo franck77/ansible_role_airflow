@@ -1,0 +1,26 @@
+---
+- hosts: airflow_host
+  vars_files:
+    - "{{ env }}/group_vars/sudoers.yml"
+    - "{{ env }}/group_vars/users_groups.yml"
+  tasks:
+
+    - name: "Manage airflow"
+      include_role:
+        name: "role_airflow"
+      vars:
+        state: "role_airflow_remove"
+
+    - name: "Set sudoers for roles"
+      become: "true"
+      include_role:
+        name: "role_sudoers"
+      vars:
+        sudoers: "{{ sudoers_del }}"
+
+    - name: "Create users airflow and postgres"
+      become: "true"
+      include_role:
+        name: "role_users"
+      vars:
+        users: "{{ users_del }}"
